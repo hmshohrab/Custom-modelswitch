@@ -6,12 +6,12 @@
 ![Stars](https://img.shields.io/github/stars/TechTronixx/Custom-modelswitch)
 ![Last commit](https://img.shields.io/github/last-commit/TechTronixx/Custom-modelswitch)
 
-Terminal UI to point your AI coding tools at a custom gateway.
+![Claude Code](https://img.shields.io/badge/Claude%20Code-3A3A3A?logo=anthropic&logoColor=white)
+![OpenCode](https://img.shields.io/badge/OpenCode-0057B8)
+![Codex](https://img.shields.io/badge/Codex-412991?logo=openai&logoColor=white)
+![Hermes Desktop](https://img.shields.io/badge/Hermes%20Desktop-FF6B6B)
 
-Configures **Claude Code**, **OpenCode**, and **Codex** to use any
-OpenAI/Anthropic-compatible endpoint — a self-hosted proxy, a model aggregator,
-or any custom base URL — instead of the default provider. Can also launch
-**Hermes Desktop**'s model setup.
+One-liner to switch Claude Code, OpenCode, Codex, and Hermes Desktop to a custom AI gateway.
 
 Model lists are fetched live from the gateway when possible, with curated
 fallbacks. Every config file is backed up before it's touched.
