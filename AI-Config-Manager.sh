@@ -826,6 +826,80 @@ with open(config_path, "w", encoding="utf-8") as f:
     echo "CONFIG_BACKUP:$config_backup"
 }
 
+configure_cline() {
+    local base_url="$1"
+    local model="$2"
+    local api_key="$3"
+    local provider_name="${4:-Custom}"
+
+    local cline_dir="$HOME/.cline/data"
+    mkdir -p "$cline_dir"
+
+    local secrets_path="$cline_dir/secrets.json"
+    local global_path="$cline_dir/globalState.json"
+
+    local ts
+    ts=$(date +%Y%m%d_%H%M%S)
+    if [ -f "$secrets_path" ]; then
+        cp "$secrets_path" "$secrets_path.backup-$ts"
+    fi
+    if [ -f "$global_path" ]; then
+        cp "$global_path" "$global_path.backup-$ts"
+    fi
+
+    python3 -c '
+import json, os, sys
+
+secrets_path, global_path, base_url, model, api_key, prov_name = sys.argv[1:7]
+
+anthropic_url = base_url.rstrip("/")
+if anthropic_url.endswith("/v1"):
+    anthropic_url = anthropic_url[:-3]
+
+openai_url = base_url.rstrip("/")
+if not openai_url.endswith("/v1"):
+    openai_url = openai_url + "/v1"
+
+secrets = {}
+if os.path.exists(secrets_path):
+    try:
+        with open(secrets_path, "r", encoding="utf-8") as f:
+            secrets = json.load(f)
+    except Exception: pass
+
+secrets["apiKey"] = api_key
+secrets["openAiApiKey"] = api_key
+secrets["anthropicApiKey"] = api_key
+
+with open(secrets_path, "w", encoding="utf-8") as f:
+    json.dump(secrets, f, indent=2)
+
+state = {}
+if os.path.exists(global_path):
+    try:
+        with open(global_path, "r", encoding="utf-8") as f:
+            state = json.load(f)
+    except Exception: pass
+
+state["apiProvider"] = "openai-compatible"
+state["planModeApiProvider"] = "openai-compatible"
+state["actModeApiProvider"] = "openai-compatible"
+state["openAiBaseUrl"] = openai_url
+state["anthropicBaseUrl"] = anthropic_url
+state["planModeOpenAiModelId"] = model
+state["actModeOpenAiModelId"] = model
+state["planModeApiModelId"] = model
+state["actModeApiModelId"] = model
+state["openAiModelId"] = model
+
+with open(global_path, "w", encoding="utf-8") as f:
+    json.dump(state, f, indent=2)
+' "$secrets_path" "$global_path" "$base_url" "$model" "$api_key" "$provider_name"
+
+    echo "SECRETS_PATH:$secrets_path"
+    echo "GLOBAL_PATH:$global_path"
+}
+
 invoke_hermes_setup() {
     if ! command -v hermes >/dev/null 2>&1; then
         echo -e "${YELLOW}Hermes is not installed. Install Hermes first, then rerun this option.${RESET}" >&2
@@ -1036,6 +1110,45 @@ else:
     print("    \033[90mNo config.toml found.\033[0m")
 ' "$codex_auth" "$codex_config" >&2
 
+    local cline_dir="$HOME/.cline/data"
+    echo "" >&2
+    echo -e "  ${GRAY}Cline: $cline_dir${RESET}" >&2
+    python3 -c '
+import json, os, sys
+
+def mask(key):
+    if not key: return "(empty)"
+    l = len(key)
+    if l <= 8: return "*" * l
+    mid = min(12, l - 8)
+    return key[:4] + ("*" * mid) + key[-4:]
+
+dir_path = sys.argv[1]
+glob_p = os.path.join(dir_path, "globalState.json")
+sec_p = os.path.join(dir_path, "secrets.json")
+
+if os.path.exists(glob_p):
+    try:
+        with open(glob_p, "r", encoding="utf-8") as f:
+            st = json.load(f)
+        sec = {}
+        if os.path.exists(sec_p):
+            with open(sec_p, "r", encoding="utf-8") as f:
+                sec = json.load(f)
+        prov = st.get("apiProvider", "")
+        b_url = st.get("openAiBaseUrl") or st.get("anthropicBaseUrl") or ""
+        model = st.get("actModeOpenAiModelId") or st.get("actModeApiModelId") or st.get("openAiModelId") or ""
+        key = sec.get("openAiApiKey") or sec.get("apiKey") or ""
+        print(f"    Provider: {prov}")
+        print(f"    Base URL: {b_url}")
+        print(f"    Model:    {model}")
+        print(f"    API Key:  {mask(key)}")
+    except Exception:
+        print("    \033[33mCould not parse Cline config.\033[0m")
+else:
+    print("    \033[90mNo config found.\033[0m")
+' "$cline_dir" >&2
+
     pause_screen
 }
 
@@ -1051,15 +1164,16 @@ while true; do
         "Configure Codex" \
         "Configure Hermes Desktop" \
         "Configure Claude Desktop" \
-        "Configure Both (Claude Code + OpenCode)" \
+        "Configure Cline (VS Code / CLI)" \
+        "Configure All (Claude Code + OpenCode + Codex + Cline)" \
         "View current configuration" \
         "Exit")
 
-    if [ "$target_idx" -eq -1 ] || [ "$target_idx" -eq 7 ]; then
+    if [ "$target_idx" -eq -1 ] || [ "$target_idx" -eq 8 ]; then
         break
     fi
 
-    if [ "$target_idx" -eq 6 ]; then
+    if [ "$target_idx" -eq 7 ]; then
         show_current
         continue
     fi
@@ -1073,13 +1187,15 @@ while true; do
     do_opencode=0
     do_codex=0
     do_claude_desktop=0
+    do_cline=0
 
     case "$target_idx" in
         0) do_claude=1 ;;
         1) do_opencode=1 ;;
         2) do_codex=1 ;;
         4) do_claude_desktop=1 ;;
-        5) do_claude=1; do_opencode=1 ;;
+        5) do_cline=1 ;;
+        6) do_claude=1; do_opencode=1; do_codex=1; do_cline=1 ;;
     esac
 
     gw_options=()
@@ -1260,7 +1376,7 @@ print(f"{cleaned}_API_KEY")
         local can_ref="$2"
         local gw_label="$3"
         local client_label="$4"
-        local client_type="$5" # "claude" or "opencode"
+        local client_type="$5"
 
         local current_models="$models_json"
 
@@ -1331,6 +1447,7 @@ print(f"{cleaned}_API_KEY")
         opencode_model=""
         codex_model=""
         claude_desktop_model=""
+        cline_model=""
 
         if [ "$do_claude" -eq 1 ] || [ "$do_claude_desktop" -eq 1 ]; then
             if [ "$do_claude" -eq 1 ]; then
@@ -1343,7 +1460,7 @@ print(f"{cleaned}_API_KEY")
             fi
         fi
 
-        if [ "$do_opencode" -eq 1 ] || [ "$do_codex" -eq 1 ]; then
+        if [ "$do_opencode" -eq 1 ] || [ "$do_codex" -eq 1 ] || [ "$do_cline" -eq 1 ]; then
             if [ "$do_opencode" -eq 1 ]; then
                 opencode_model=$(choose_model "$opencode_models" "$can_refresh" "$preset_label" "OpenCode" "opencode")
                 if [ -z "$opencode_model" ]; then break; fi
@@ -1352,17 +1469,23 @@ print(f"{cleaned}_API_KEY")
                 codex_model=$(choose_model "$opencode_models" "$can_refresh" "$preset_label" "Codex" "opencode")
                 if [ -z "$codex_model" ]; then break; fi
             fi
+            if [ "$do_cline" -eq 1 ]; then
+                cline_model=$(choose_model "$opencode_models" "$can_refresh" "$preset_label" "Cline" "opencode")
+                if [ -z "$cline_model" ]; then break; fi
+            fi
         fi
 
         target_name=""
-        if [ "$do_claude" -eq 1 ] && [ "$do_opencode" -eq 1 ]; then
-            target_name="Claude Code + OpenCode"
+        if [ "$do_claude" -eq 1 ] && [ "$do_opencode" -eq 1 ] && [ "$do_codex" -eq 1 ] && [ "$do_cline" -eq 1 ]; then
+            target_name="Claude Code + OpenCode + Codex + Cline"
         elif [ "$do_claude" -eq 1 ]; then
             target_name="Claude Code"
         elif [ "$do_claude_desktop" -eq 1 ]; then
             target_name="Claude Desktop"
         elif [ "$do_codex" -eq 1 ]; then
             target_name="Codex"
+        elif [ "$do_cline" -eq 1 ]; then
+            target_name="Cline"
         else
             target_name="OpenCode"
         fi
@@ -1374,6 +1497,7 @@ print(f"{cleaned}_API_KEY")
         if [ "$do_claude_desktop" -eq 1 ]; then summary_headers+=("Claude Desktop model:$claude_desktop_model"); fi
         if [ "$do_opencode" -eq 1 ]; then summary_headers+=("OpenCode model:      $opencode_model"); fi
         if [ "$do_codex" -eq 1 ]; then summary_headers+=("Codex model:         $codex_model"); fi
+        if [ "$do_cline" -eq 1 ]; then summary_headers+=("Cline model:         $cline_model"); fi
         masked_k=$(mask_key "$api_key")
         summary_headers+=("API Key: $masked_k")
 
@@ -1442,9 +1566,18 @@ print(f"{cleaned}_API_KEY")
             if [ -n "$c_b" ]; then echo -e "     ${GRAY}Backup: $c_b${RESET}" >&2; fi
         fi
 
+        if [ "$do_cline" -eq 1 ]; then
+            res=$(configure_cline "$opencode_base_url" "$cline_model" "$api_key" "$opencode_provider_name")
+            s_p=$(echo "$res" | grep "^SECRETS_PATH:" | cut -d: -f2-)
+            g_p=$(echo "$res" | grep "^GLOBAL_PATH:" | cut -d: -f2-)
+            echo -e "${GREEN}[OK] Cline configured${RESET}" >&2
+            echo "     $s_p" >&2
+            echo "     $g_p" >&2
+        fi
+
         echo "" >&2
         echo -e "${GREEN}Configuration complete.${RESET}" >&2
-        echo "Close existing Claude Code, OpenCode, or Codex sessions and start a new terminal session." >&2
+        echo "Close existing tools/editor sessions and start a new session." >&2
         pause_screen
         break
     done

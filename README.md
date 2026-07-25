@@ -10,9 +10,10 @@
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-3A3A3A?logo=anthropic&logoColor=white)
 ![OpenCode](https://img.shields.io/badge/OpenCode-0057B8)
 ![Codex](https://img.shields.io/badge/Codex-412991?logo=openai&logoColor=white)
+![Cline](https://img.shields.io/badge/Cline-5C2D91?logo=visualstudiocode&logoColor=white)
 ![Hermes Desktop](https://img.shields.io/badge/Hermes%20Desktop-FF6B6B)
 
-One-liner to switch Claude Code, OpenCode, Codex, and Hermes Desktop to a custom AI gateway. Supports **Windows** (PowerShell) and **macOS** (Bash).
+One-liner to switch Claude Code, OpenCode, Codex, Cline, and Hermes Desktop to a custom AI gateway. Supports **Windows** (PowerShell) and **macOS** (Bash).
 
 Model lists are fetched live from the gateway when possible, with curated
 fallbacks. Every config file is backed up before it's touched.
@@ -78,7 +79,8 @@ Pick an option with the arrow keys, **Enter** to select, **Esc** to go back.
 | Configure Codex | Writes `~/.codex/auth.json` + `~/.codex/config.toml`, sets an API-key env var |
 | Configure Hermes Desktop | Launches `hermes model` for you to complete manually |
 | Configure Claude Desktop | Writes the 3P gateway config (configLibrary entry) for the Claude Desktop app |
-| Configure Both | Claude Code + OpenCode in one pass |
+| Configure Cline | Writes `~/.cline/data/globalState.json` + `secrets.json` for VS Code / CLI Cline extension |
+| Configure All | Claude Code + OpenCode + Codex + Cline in one pass |
 | View current configuration | Shows what each tool is currently pointed at |
 
 Pick a gateway from the list, or choose **Custom base URL** to enter one at
