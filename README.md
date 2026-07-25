@@ -3,9 +3,9 @@
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-0078D6?logo=apple&logoColor=white)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-012456?logo=powershell&logoColor=white)
 ![Bash](https://img.shields.io/badge/Bash-3.2%2B-4EAA25?logo=gnu-bash&logoColor=white)
-![Issues](https://img.shields.io/github/issues/TechTronixx/Custom-modelswitch)
-![Stars](https://img.shields.io/github/stars/TechTronixx/Custom-modelswitch)
-![Last commit](https://img.shields.io/github/last-commit/TechTronixx/Custom-modelswitch)
+![Issues](https://img.shields.io/github/issues/hmshohrab/Custom-modelswitch)
+![Stars](https://img.shields.io/github/stars/hmshohrab/Custom-modelswitch)
+![Last commit](https://img.shields.io/github/last-commit/hmshohrab/Custom-modelswitch)
 
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-3A3A3A?logo=anthropic&logoColor=white)
 ![OpenCode](https://img.shields.io/badge/OpenCode-0057B8)
@@ -23,13 +23,13 @@ fallbacks. Every config file is backed up before it's touched.
 ### macOS
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/TechTronixx/Custom-modelswitch/main/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hmshohrab/Custom-modelswitch/main/bootstrap.sh | bash
 ```
 
 ### Windows
 
 ```powershell
-irm https://raw.githubusercontent.com/TechTronixx/Custom-modelswitch/main/bootstrap.ps1 | iex
+irm https://raw.githubusercontent.com/hmshohrab/Custom-modelswitch/main/bootstrap.ps1 | iex
 ```
 
 Downloads to `~/AI-Config-Manager` and launches the interactive menu. Re-run the one-liner any time to update and start again.
@@ -52,7 +52,7 @@ Clone and run, if you prefer not to use the one-liner above:
 ### macOS
 
 ```bash
-git clone https://github.com/TechTronixx/Custom-modelswitch.git
+git clone https://github.com/hmshohrab/Custom-modelswitch.git
 cd Custom-modelswitch
 chmod +x AI-Config-Manager.sh
 ./AI-Config-Manager.sh
@@ -61,7 +61,7 @@ chmod +x AI-Config-Manager.sh
 ### Windows
 
 ```powershell
-git clone https://github.com/TechTronixx/Custom-modelswitch.git
+git clone https://github.com/hmshohrab/Custom-modelswitch.git
 cd Custom-modelswitch
 powershell -ExecutionPolicy Bypass -File .\AI-Config-Manager.ps1
 ```
