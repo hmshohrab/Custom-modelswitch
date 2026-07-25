@@ -15,10 +15,11 @@ if ! curl -fsI "https://raw.githubusercontent.com/$REPO/main/AI-Config-Manager.s
 fi
 
 BASE_URL="https://raw.githubusercontent.com/$REPO/$BRANCH"
+TS=$(date +%s)
 
 echo "Downloading AI Config Manager from $REPO ($BRANCH)..."
 for FILE in "AI-Config-Manager.sh" "AI-Config-Presets.json"; do
-    curl -fsSL "$BASE_URL/$FILE" -o "$DIR/$FILE"
+    curl -fsSL "$BASE_URL/$FILE?v=$TS" -o "$DIR/$FILE"
 done
 
 chmod +x "$DIR/AI-Config-Manager.sh"
