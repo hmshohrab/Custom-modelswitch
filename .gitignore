@@ -8,6 +8,11 @@
 Thumbs.db
 .DS_Store
 
+# Local environment variables containing API keys
+.env
+.env.local
+*.env
+
 # Local, user-specific preset overrides (optional convention)
 AI-Config-Presets.local.json
 

@@ -22,23 +22,218 @@
     },
     {
       "id": "agentrouter",
-      "label": "AgentRouter",
+      "label": "AgentRouter.org",
       "dashboard": "https://agentrouter.org/register",
       "fetchModels": true,
       "modelsApiUrl": "https://agentrouter.org/api/pricing",
       "claude": {
         "baseUrl": "https://agentrouter.org",
-        "curatedModels": ["claude-opus-4-6", "claude-opus-4-7", "claude-opus-4-8"]
+        "curatedModels": [
+          "claude-opus-4-6",
+          "claude-opus-4-7",
+          "claude-opus-4-8"
+        ]
       },
       "opencode": {
         "baseUrl": "https://agentrouter.org/v1",
         "providerKey": "agentrouter",
-        "providerName": "AgentRouter",
+        "providerName": "AgentRouter.org",
         "npmPackage": "@ai-sdk/openai-compatible",
-        "curatedModels": ["gpt-5.5", "glm-5.2"]
+        "curatedModels": [
+          "claude-opus-4-6",
+          "claude-opus-4-7",
+          "claude-opus-4-8",
+          "glm-5.2",
+          "gpt-5.5",
+          "gpt-5.6-sol",
+          "kimi-k3"
+        ]
       },
       "codex": {
         "baseUrl": "https://agentrouter.org"
+      }
+    },
+    {
+      "id": "forge",
+      "label": "Forge Gateway (Claude)",
+      "dashboard": null,
+      "fetchModels": true,
+      "claude": {
+        "baseUrl": "https://forge-gateway-api.fly.dev",
+        "curatedModels": [
+          "claude-haiku-4-5-20251001",
+          "claude-sonnet-4-6",
+          "claude-sonnet-5",
+          "claude-opus-4-5-20251101"
+        ]
+      },
+      "opencode": {
+        "baseUrl": "https://forge-gateway-api.fly.dev/v1",
+        "providerKey": "forge",
+        "providerName": "Forge Gateway (Claude)",
+        "npmPackage": "@ai-sdk/openai-compatible",
+        "curatedModels": [
+          "claude-haiku-4-5-20251001",
+          "claude-sonnet-4-6",
+          "claude-sonnet-5",
+          "claude-opus-4-5-20251101"
+        ]
+      },
+      "codex": {
+        "baseUrl": "https://forge-gateway-api.fly.dev"
+      }
+    },
+    {
+      "id": "conduit",
+      "label": "Conduit AI",
+      "dashboard": null,
+      "fetchModels": true,
+      "claude": {
+        "baseUrl": "https://conduit.ozdoev.net",
+        "curatedModels": [
+          "opus-5-preview",
+          "claude-sonnet-4-6",
+          "claude-haiku-4-5",
+          "claude-4-8",
+          "claude-fable-5",
+          "claude-opus-4.8"
+        ]
+      },
+      "opencode": {
+        "baseUrl": "https://conduit.ozdoev.net/v1",
+        "providerKey": "conduit",
+        "providerName": "Conduit AI",
+        "npmPackage": "@ai-sdk/openai-compatible",
+        "curatedModels": [
+          "opus-5-preview",
+          "claude-sonnet-4-6",
+          "claude-haiku-4-5",
+          "claude-4-8",
+          "claude-fable-5",
+          "claude-opus-4.8",
+          "gpt-4o",
+          "gpt-4.1",
+          "gpt-5",
+          "gpt-5-mini",
+          "gpt-5.6",
+          "gpt-5.6-sol",
+          "o4",
+          "gemini-2.5-flash",
+          "gemini-2.5-pro",
+          "gemini-3-pro",
+          "deepseek-r1",
+          "deepseek-v3.2",
+          "deepseek-v4-flash",
+          "grok-3",
+          "grok-4",
+          "llama-3.3-70b",
+          "llama-4-maverick",
+          "codestral",
+          "qwen3-coder",
+          "qwen3-max",
+          "kimi-k2.6"
+        ]
+      },
+      "codex": {
+        "baseUrl": "https://conduit.ozdoev.net"
+      }
+    },
+    {
+      "id": "hcnsec",
+      "label": "HCNSEC AI",
+      "dashboard": "https://api.hcnsec.cn",
+      "fetchModels": true,
+      "claude": {
+        "baseUrl": "https://api.hcnsec.cn",
+        "curatedModels": [
+          "DeepSeek-V4-Flash",
+          "DeepSeek-V4-Pro",
+          "Kimi-K2.6",
+          "MiniMax-M2.7",
+          "MiniMax-M3",
+          "Qwen3.5-397B-A17B",
+          "Qwen3.6-35B-A3B",
+          "auto",
+          "glm-5.2",
+          "kat-coder-pro-v2.5",
+          "step-3.7-flash"
+        ]
+      },
+      "opencode": {
+        "baseUrl": "https://api.hcnsec.cn/v1",
+        "providerKey": "hcnsec",
+        "providerName": "HCNSEC AI",
+        "npmPackage": "@ai-sdk/openai-compatible",
+        "curatedModels": [
+          "DeepSeek-V4-Flash",
+          "DeepSeek-V4-Pro",
+          "Kimi-K2.6",
+          "MiniMax-M2.7",
+          "MiniMax-M3",
+          "Qwen3.5-397B-A17B",
+          "Qwen3.6-35B-A3B",
+          "auto",
+          "glm-5.2",
+          "kat-coder-pro-v2.5",
+          "step-3.7-flash"
+        ]
+      },
+      "codex": {
+        "baseUrl": "https://api.hcnsec.cn"
+      }
+    },
+    {
+      "id": "openai",
+      "label": "OpenAI Official",
+      "dashboard": "https://platform.openai.com/api-keys",
+      "fetchModels": true,
+      "claude": {
+        "baseUrl": "https://api.openai.com/v1",
+        "curatedModels": []
+      },
+      "opencode": {
+        "baseUrl": "https://api.openai.com/v1",
+        "providerKey": "openai",
+        "providerName": "OpenAI",
+        "npmPackage": "@ai-sdk/openai",
+        "curatedModels": [
+          "gpt-4o",
+          "gpt-4o-mini",
+          "gpt-4.5-preview",
+          "o1",
+          "o3-mini"
+        ]
+      },
+      "codex": {
+        "baseUrl": "https://api.openai.com/v1"
+      }
+    },
+    {
+      "id": "google",
+      "label": "Google Gemini",
+      "dashboard": "https://aistudio.google.com/app/apikey",
+      "fetchModels": true,
+      "claude": {
+        "baseUrl": "https://generativelanguage.googleapis.com/v1beta/models",
+        "curatedModels": [
+          "gemini-2.5-flash-lite",
+          "gemini-2.5-flash",
+          "gemini-2.5-pro"
+        ]
+      },
+      "opencode": {
+        "baseUrl": "https://generativelanguage.googleapis.com/v1beta/models",
+        "providerKey": "google",
+        "providerName": "Google Gemini",
+        "npmPackage": "@ai-sdk/google",
+        "curatedModels": [
+          "gemini-2.5-flash-lite",
+          "gemini-2.5-flash",
+          "gemini-2.5-pro"
+        ]
+      },
+      "codex": {
+        "baseUrl": "https://generativelanguage.googleapis.com/v1beta/models"
       }
     }
   ]

@@ -444,6 +444,7 @@ function Configure-Codex([string]$BaseUrl, [string]$ApiKey, [string]$Model, [str
     # it discard the whole file and silently fall back to ChatGPT defaults. So a
     # built-in provider ID (openai) or a stale wire_api value breaks everything.
     $provider = if ($ProviderKey -and $ProviderKey -ne "openai") { $ProviderKey } else { "custom" }
+    $providerName = if ($ProviderName) { $ProviderName } else { $provider }
     $envKey = ($provider.ToUpper() -replace '[^A-Z0-9]', '_') + "_API_KEY"
 
     $toml = if (Test-Path $configPath) { Get-Content $configPath -Raw } else { "" }
@@ -472,6 +473,7 @@ function Configure-Codex([string]$BaseUrl, [string]$ApiKey, [string]$Model, [str
     # Keep the key in [shell_environment_policy.set] too, so shells Codex spawns
     # for tools inherit it.
     $toml = Set-TomlEnvPolicyValue $toml $envKey $ApiKey
+    $toml = [regex]::Replace($toml, '(?m)^\s*name\s*=\s*""\s*$', 'name = "custom"')
     Ensure-Parent $configPath
     Set-Content -Path $configPath -Value $toml -Encoding UTF8
 
@@ -699,7 +701,29 @@ function New-CustomPreset([string]$Url) {
     }
 }
 
-# ---------- main loop ----------
+function Load-DotEnv {
+    $paths = @(
+        (Join-Path $PSScriptRoot ".env"),
+        (Join-Path $PSScriptRoot ".env.local")
+    )
+    foreach ($path in $paths) {
+        if (Test-Path $path) {
+            Get-Content $path | ForEach-Object {
+                $line = $_.Trim()
+                if ($line -and !$line.StartsWith("#") -and $line.Contains("=")) {
+                    $parts = $line.Split("=", 2)
+                    $k = $parts[0].Trim()
+                    $v = $parts[1].Trim().Trim('"').Trim("'")
+                    if ($k -and $v) {
+                        [Environment]::SetEnvironmentVariable($k, $v, "Process")
+                    }
+                }
+            }
+        }
+    }
+}
+
+Load-DotEnv
 
 if ([Console]::IsInputRedirected) {
     Write-Host "This TUI requires an interactive terminal. Run it directly, not piped." -ForegroundColor Red
@@ -744,9 +768,9 @@ while ($true) {
 
     # Never pass the reserved built-in ID "openai" as a provider key — Codex
     # rejects the whole config if a custom provider reuses a built-in ID.
-    $codexProviderKey = if ($preset.id -eq "agentrouter") { "agentrouter" } elseif ($preset.id -eq "euromodels") { "euromodels" } else { $null }
-    $codexProviderName = if ($preset.id -eq "agentrouter") { "agentrouter" } elseif ($preset.id -eq "euromodels") { "euromodels" } else { $null }
-    if ($doCodex -and $preset.id -eq $null) {
+    $codexProviderKey = if ($preset.codex -and $preset.codex.providerKey) { $preset.codex.providerKey } elseif ($preset.id) { $preset.id } elseif ($preset.opencode -and $preset.opencode.providerKey) { $preset.opencode.providerKey } else { $null }
+    $codexProviderName = if ($preset.codex -and $preset.codex.providerName) { $preset.codex.providerName } elseif ($preset.label) { $preset.label } elseif ($preset.opencode -and $preset.opencode.providerName) { $preset.opencode.providerName } else { $null }
+    if ($doCodex -and [string]::IsNullOrWhiteSpace($codexProviderKey)) {
         while ([string]::IsNullOrWhiteSpace($codexProviderKey)) {
             $codexProviderKey = (Read-Host "Codex provider key (for [model_providers.<key>])").Trim()
         }
@@ -755,13 +779,25 @@ while ($true) {
         }
     }
 
+    $envVarName = if ($codexProviderKey) { ($codexProviderKey.ToUpper() -replace '[^A-Z0-9]', '_') + "_API_KEY" } else { "CUSTOM_API_KEY" }
+    $envDefaultKey = [Environment]::GetEnvironmentVariable($envVarName, "Process")
+    if ([string]::IsNullOrWhiteSpace($envDefaultKey)) { $envDefaultKey = $env:CUSTOM_API_KEY }
+
     Clear-Host
     Write-Banner "API Key - $($preset.label)"
     if ($preset.dashboard) {
         Write-Host "  Get a key at: $($preset.dashboard)" -ForegroundColor DarkGray
         Write-Host ""
     }
+    if ($envDefaultKey) {
+        Write-Host "  Found pre-saved key in .env / environment: $(Mask-Key $envDefaultKey)" -ForegroundColor Green
+        Write-Host "  (Press Enter to use pre-saved key, or type a new key below)" -ForegroundColor DarkGray
+        Write-Host ""
+    }
     $apiKey = Read-SecretPlain
+    if ([string]::IsNullOrWhiteSpace($apiKey) -and $envDefaultKey) {
+        $apiKey = $envDefaultKey
+    }
     if ([string]::IsNullOrWhiteSpace($apiKey)) {
         Write-Host "API key cannot be empty." -ForegroundColor Red
         Pause-Screen
